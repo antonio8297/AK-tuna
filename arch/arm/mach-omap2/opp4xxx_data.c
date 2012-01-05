@@ -470,24 +470,25 @@ static struct omap_opp_def __initdata omap446x_opp_def_list[] = {
 };
 
 /**
- * omap4_mpu_opp_enable() - helper to enable the OPP
+ * omap4_opp_enable() - helper to enable the OPP
+ * @oh_name: name of the hwmod device
  * @freq:	frequency to enable
  */
-static void __init omap4_mpu_opp_enable(unsigned long freq)
+static void __init omap4_opp_enable(const char *oh_name, unsigned long freq)
 {
-	struct device *mpu_dev;
+	struct device *dev;
 	int r;
 
-	mpu_dev = omap2_get_mpuss_device();
-	if (!mpu_dev) {
-		pr_err("%s: no mpu_dev, did not enable f=%ld\n", __func__,
-			freq);
+	dev = omap_hwmod_name_get_dev(oh_name);
+	if (IS_ERR(dev)) {
+		pr_err("%s: no %s device, did not enable f=%ld\n", __func__,
+			oh_name, freq);
 		return;
 	}
 
-	r = opp_enable(mpu_dev, freq);
+	r = opp_enable(dev, freq);
 	if (r < 0)
-		dev_err(mpu_dev, "%s: opp_enable failed(%d) f=%ld\n", __func__,
+		dev_err(dev, "%s: opp_enable failed(%d) f=%ld\n", __func__,
 			r, freq);
 }
 
@@ -508,24 +509,23 @@ int __init omap4_opp_init(void)
 			ARRAY_SIZE(omap446x_opp_def_list));
 
 	if (!r) {
-			omap4_mpu_opp_enable(1200000000);
-			omap4_mpu_opp_enable(1350000000);
+			omap4_opp_enable("mpu", 1200000000);
+			omap4_opp_enable("mpu", 1350000000);
 #ifdef CONFIG_OMAP_OCFREQ_1400
-			omap4_mpu_opp_enable(1420000000);
-			omap4_mpu_opp_enable(1480000000);
+			omap4_opp_enable("mpu", 1420000000);
+			omap4_opp_enable("mpu", 1480000000);
 #endif
 #ifdef CONFIG_OMAP_OCFREQ_1600
-			omap4_mpu_opp_enable(1560000000);
-			omap4_mpu_opp_enable(1640000000);
+			omap4_opp_enable("mpu", 1560000000);
+			omap4_opp_enable("mpu", 1640000000);
 #endif
 #ifdef CONFIG_OMAP_OCFREQ_1800
-			omap4_mpu_opp_enable(1720000000);
+			omap4_opp_enable("mpu", 1720000000);
 #endif
 #ifdef CONFIG_OMAP_OCFREQ_2000
-			omap4_mpu_opp_enable(1800000000);
+			omap4_opp_enable("mpu", 1800000000);
 #endif
-	}
-
+		}
 	return r;
 }
 device_initcall(omap4_opp_init);
