@@ -28,6 +28,10 @@
 #include "omap_opp_data.h"
 #include "pm.h"
 
+#ifdef CONFIG_LIVE_OC
+#include <linux/live_oc.h>
+#endif
+
 /*
  * STD_FUSE_OPP_DPLL_1 contains info about ABB trim type for MPU/IVA.
  * This bit field definition is specific for OMAP4460 TURBO alone.
@@ -486,6 +490,9 @@ int __init omap4_opp_init(void)
 	/* Update ABB settings */
 	if (cpu_is_omap446x())
 		omap4460_abb_update();
+#ifdef CONFIG_LIVE_OC
+	liveoc_init();
+#endif
 
 	return r;
 }
