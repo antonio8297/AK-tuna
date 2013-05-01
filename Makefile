@@ -1,8 +1,8 @@
 VERSION = 3
 PATCHLEVEL = 0
-SUBLEVEL = 75
+SUBLEVEL = 76
 EXTRAVERSION = +
-NAME = Diamond Ed.
+NAME = Skl Ed.
 
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
