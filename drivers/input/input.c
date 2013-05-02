@@ -1639,21 +1639,27 @@ static void input_dev_toggle(struct input_dev *dev, bool activate)
  */
 void input_reset_device(struct input_dev *dev)
 {
-	mutex_lock(&dev->mutex);
+        mutex_lock(&dev->mutex);
 
-	if (dev->users) {
-		input_dev_toggle(dev, true);
+        if (!KEY_POWER && dev->users) {
+                input_dev_toggle(dev, true);
 
-		/*
-		 * Keys that have been pressed at suspend time are unlikely
-		 * to be still pressed when we resume.
-		 */
-		spin_lock_irq(&dev->event_lock);
-		input_dev_release_keys(dev);
-		spin_unlock_irq(&dev->event_lock);
-	}
+                /*
+                 * Keys that have been pressed, except power key, at suspend time are unlikely
+                 * to be still pressed when we resume.
+                 */
+                spin_lock_irq(&dev->event_lock);
+                input_dev_release_keys(dev);
+                spin_unlock_irq(&dev->event_lock);
+        } else {
+                /*
+                 * If the Keys pressed is power key don't reset
+                 * Implementation for Cataclysm rom by atl4ntis
+                 */
+                input_dev_toggle(dev, true);
+        }
 
-	mutex_unlock(&dev->mutex);
+        mutex_unlock(&dev->mutex);
 }
 EXPORT_SYMBOL(input_reset_device);
 
