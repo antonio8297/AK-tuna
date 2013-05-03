@@ -400,22 +400,23 @@ static struct omap_opp_def __initdata omap446x_opp_def_list[] = {
 	/* MPU OPP4 - OPP-Nitro */
 	OPP_INITIALIZER("mpu", "virt_dpll_mpu_ck", "mpu", false, 1200000000, OMAP4460_VDD_MPU_OPPNITRO_UV),
 	OPP_INITIALIZER("mpu", "virt_dpll_mpu_ck", "mpu", false, 1350000000, OMAP4460_VDD_MPU_OPPNITROPLUS_UV),
+	/* MPU OPP4 - OPP-Nitro SpeedBin */
 #ifdef CONFIG_OMAP_OCFREQ_1400
 	OPP_INITIALIZER("mpu", "virt_dpll_mpu_ck", "mpu", false, 1420000000, OMAP4460_VDD_MPU_OPPNITRO_UV_OC1400),
 	OPP_INITIALIZER("mpu", "virt_dpll_mpu_ck", "mpu", false, 1480000000, OMAP4460_VDD_MPU_OPPNITROPLUS_UV_OC1400),
 #endif
+	/* MPU OPP4 - OPP-Super SpeedBin */
 #ifdef CONFIG_OMAP_OCFREQ_1600
 	OPP_INITIALIZER("mpu", "virt_dpll_mpu_ck", "mpu", false, 1560000000, OMAP4460_VDD_MPU_OPPNITRO_UV_OC1600),
 	OPP_INITIALIZER("mpu", "virt_dpll_mpu_ck", "mpu", false, 1640000000, OMAP4460_VDD_MPU_OPPNITROPLUS_UV_OC1600),
 #endif
+	/* MPU OPP4 - OPP-Ultra SpeedBin */
 #ifdef CONFIG_OMAP_OCFREQ_1800
 	OPP_INITIALIZER("mpu", "virt_dpll_mpu_ck", "mpu", false, 1720000000, OMAP4460_VDD_MPU_OPPNITRO_UV_OC1800),
 #endif
 #ifdef CONFIG_OMAP_OCFREQ_2000
 	OPP_INITIALIZER("mpu", "virt_dpll_mpu_ck", "mpu", false, 1800000000, OMAP4460_VDD_MPU_OPPNITRO_UV_OC2000),
 #endif
-	/* MPU OPP4 - OPP-Nitro SpeedBin */
-	OPP_INITIALIZER("mpu", "virt_dpll_mpu_ck", "mpu", false, 1500000000, OMAP4460_VDD_MPU_OPPNITRO_UV),
 	/* L3 OPP1 - OPP50 */
 	OPP_INITIALIZER("l3_main_1", "virt_l3_ck", "core", true, 100000000, OMAP4460_VDD_CORE_OPP50_UV),
 	/* L3 OPP2 - OPP100 */
@@ -425,13 +426,8 @@ static struct omap_opp_def __initdata omap446x_opp_def_list[] = {
 	OPP_INITIALIZER("iva", "virt_iva_ck", "iva", true, 133000000, OMAP4460_VDD_IVA_OPP50_UV),
 	/* IVA OPP2 - OPP100 */
 	OPP_INITIALIZER("iva", "virt_iva_ck", "iva", true, 266100000, OMAP4460_VDD_IVA_OPP100_UV),
-	/*
-	 * IVA OPP3 - OPP-Turbo + Disabled as the reference schematics
-	 * recommends Phoenix VCORE2 which can supply only 600mA - so the ones
-	 * above this OPP frequency, even though OMAP is capable, should be
-	 * enabled by board file which is sure of the chip power capability
-	 */
-	OPP_INITIALIZER("iva", "virt_iva_ck", "iva", false, 332000000, OMAP4460_VDD_IVA_OPPTURBO_UV),
+	/* IVA OPP3 - OPP-Turbo */
+	OPP_INITIALIZER("iva", "virt_iva_ck", "iva", true, 332000000, OMAP4460_VDD_IVA_OPPTURBO_UV),
 	/* IVA OPP4 - OPP-Nitro */
 	OPP_INITIALIZER("iva", "virt_iva_ck", "iva", false, 430000000, OMAP4460_VDD_IVA_OPPNITRO_UV),
 	/* IVA OPP5 - OPP-Nitro SpeedBin*/
@@ -454,7 +450,7 @@ static struct omap_opp_def __initdata omap446x_opp_def_list[] = {
 	/* DSP OPP2 - OPP100 */
 	OPP_INITIALIZER("dsp", "virt_dsp_ck", "iva", true, 465500000, OMAP4460_VDD_IVA_OPP100_UV),
 	/* DSP OPP3 - OPPTB */
-	OPP_INITIALIZER("dsp", "virt_dsp_ck", "iva", false, 496000000, OMAP4460_VDD_IVA_OPPTURBO_UV),
+	OPP_INITIALIZER("dsp", "virt_dsp_ck", "iva", true, 496000000, OMAP4460_VDD_IVA_OPPTURBO_UV),
 	/* HSI OPP1 - OPP50 */
 	OPP_INITIALIZER("hsi", "hsi_fck", "core", true, 96000000, OMAP4460_VDD_CORE_OPP50_UV),
 	/* HSI OPP2 - OPP100 */
@@ -508,8 +504,20 @@ int __init omap4_opp_init(void)
 		r = omap_init_opp_table(omap446x_opp_def_list,
 			ARRAY_SIZE(omap446x_opp_def_list));
 
-	if (!r) {
-			omap4_opp_enable("mpu", 1200000000);
+	if (r)
+		goto out;
+
+	/* Enable Nitro and NitroSB IVA OPPs */
+	if (omap4_has_iva_430mhz())
+		omap4_opp_enable("iva", 430000000);
+	if (omap4_has_iva_500mhz())
+		omap4_opp_enable("iva", 500000000);
+
+	/* Enable Nitro and NitroSB MPU OPPs */
+	if (omap4_has_mpu_1_2ghz())
+		omap4_opp_enable("mpu", 1200000000);
+
+	if (omap4_has_mpu_1_5ghz()) {
 			omap4_opp_enable("mpu", 1350000000);
 #ifdef CONFIG_OMAP_OCFREQ_1400
 			omap4_opp_enable("mpu", 1420000000);
@@ -526,6 +534,8 @@ int __init omap4_opp_init(void)
 			omap4_opp_enable("mpu", 1800000000);
 #endif
 		}
+
+out:
 	return r;
 }
 device_initcall(omap4_opp_init);
