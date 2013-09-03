@@ -46,7 +46,7 @@ else
   #
   # LOCAL KERNEL VERSION
   #
-  ak_ver="AK.x801.SKL.SUPERNOVA"; export LOCALVERSION="~"`echo $ak_ver`
+  ak_ver="AK.x802.SKL.SUPERNOVA"; export LOCALVERSION="~"`echo $ak_ver`
 
   debug=0
 
