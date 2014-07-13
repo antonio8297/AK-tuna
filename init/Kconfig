@@ -953,6 +953,12 @@ config CC_OPTIMIZE_O3
 
 endchoice
 
+config CC_LINK_TIME_OPTIMIZATION
+        bool "Enable link-time optimization"
+        help
+         Enabling this option will turn on -flto and
+         -fno-toplevel-reorder for KBUILD_CFLAGS.
+         
 config SYSCTL
 	bool
 

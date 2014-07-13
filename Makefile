@@ -383,6 +383,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -Wno-format-security \
 		   -fno-delete-null-pointer-checks \
 		   -mno-unaligned-access \
+		   -pipe \
 		   $(CFLAGS_A7) $(CFLAGS_GRAPHITE) $(CFLAGS_MODULO)
 
 KBUILD_AFLAGS_KERNEL :=
@@ -391,6 +392,11 @@ ifdef CCONFIG_CC_OPTIMIZE_O3
 else
  KBUILD_CFLAGS_KERNEL := -O2 -mtune=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize
 endif
+
+ifdef CONFIG_CC_LINK_TIME_OPTIMIZATION
+ KBUILD_CFLAGS        += -flto -fno-toplevel-reorder
+endif
+ 
 KBUILD_AFLAGS   := -D__ASSEMBLY__
 KBUILD_AFLAGS_MODULE  := -DMODULE
 KBUILD_CFLAGS_MODULE  := -DMODULE
